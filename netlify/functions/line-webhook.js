@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 exports.handler = async (event) => {
   if (!event.body) {
     return {
@@ -9,8 +11,29 @@ exports.handler = async (event) => {
   const body = JSON.parse(event.body);
   console.log("Received:", body);
 
+  const replyToken = body.events[0]?.replyToken;
+
+  if (replyToken) {
+    await fetch("https://api.line.me/v2/bot/message/reply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        replyToken: replyToken,
+        messages: [
+          {
+            type: "text",
+            text: "สวัสดี 👋 บอททำงานแล้ว!",
+          },
+        ],
+      }),
+    });
+  }
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: "Webhook received" }),
+    body: "OK",
   };
 };
