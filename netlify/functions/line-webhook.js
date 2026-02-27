@@ -1,13 +1,14 @@
 exports.handler = async (event) => {
 
-  // ====== 1️⃣ ถ้าเป็น Webhook จาก LINE ======
+  // ===============================
+  // 1️⃣ ถ้าเป็น Webhook จาก LINE
+  // ===============================
   if (event.headers["user-agent"]?.includes("LineBotWebhook")) {
 
     const body = JSON.parse(event.body);
 
     console.log("FULL BODY:", JSON.stringify(body, null, 2));
 
-    // ดึง userId
     const userId = body.events?.[0]?.source?.userId;
 
     console.log("USER ID:", userId);
@@ -19,7 +20,9 @@ exports.handler = async (event) => {
   }
 
 
-  // ====== 2️⃣ ถ้าเป็นคำสั่งจากหน้าเว็บ (Production Order) ======
+  // =====================================
+  // 2️⃣ ถ้าเป็นคำสั่งจากหน้าเว็บ (ฟอร์ม)
+  // =====================================
   if (event.httpMethod === "POST") {
 
     const data = JSON.parse(event.body);
