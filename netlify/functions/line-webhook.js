@@ -1,37 +1,64 @@
 exports.handler = async (event) => {
-  if (!event.body) {
+
+  // ====== 1️⃣ ถ้าเป็น Webhook จาก LINE ======
+  if (event.headers["user-agent"]?.includes("LineBotWebhook")) {
+
+    const body = JSON.parse(event.body);
+
+    console.log("FULL BODY:", JSON.stringify(body, null, 2));
+
+    // ดึง userId
+    const userId = body.events?.[0]?.source?.userId;
+
+    console.log("USER ID:", userId);
+
     return {
       statusCode: 200,
-      body: "Webhook is working",
+      body: "Webhook received"
     };
   }
 
-  const body = JSON.parse(event.body);
-  console.log("Received:", body);
 
-  const replyToken = body.events[0]?.replyToken;
+  // ====== 2️⃣ ถ้าเป็นคำสั่งจากหน้าเว็บ (Production Order) ======
+  if (event.httpMethod === "POST") {
 
-  if (replyToken) {
-    await fetch("https://api.line.me/v2/bot/message/reply", {
+    const data = JSON.parse(event.body);
+
+    const message = `
+📦 คำสั่งผลิตใหม่
+
+รหัสออเดอร์: ${data.orderCode}
+สินค้า: ${data.product}
+จำนวน: ${data.quantity}
+รหัสสินค้า: ${data.productCode}
+`;
+
+    await fetch("https://api.line.me/v2/bot/message/push", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`,
       },
       body: JSON.stringify({
-        replyToken: replyToken,
+        to: "ใส่ USER_ID ตรงนี้",
         messages: [
           {
             type: "text",
-            text: "สวัสดี 👋 บอททำงานแล้ว!",
+            text: message,
           },
         ],
       }),
     });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ status: "success" }),
+    };
   }
 
+
   return {
-    statusCode: 200,
-    body: "OK",
+    statusCode: 405,
+    body: "Method Not Allowed",
   };
 };
