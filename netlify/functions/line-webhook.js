@@ -40,7 +40,7 @@ exports.handler = async (event) => {
         Authorization: `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`,
       },
       body: JSON.stringify({
-        to: "ใส่ USER_ID ตรงนี้",
+        to: "U5f8bfc161e3271d3040a687da3f1d037",
         messages: [
           {
             type: "text",
