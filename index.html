@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบสั่งผลิตสินค้า</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Prompt',sans-serif;
+}
+
+body{
+    height:100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* กล่องฟอร์ม */
+.container{
+    background:#ffffff;
+    padding:40px;
+    width:400px;
+    border-radius:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+.container h2{
+    text-align:center;
+    margin-bottom:25px;
+    color:#333;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+label{
+    font-weight:500;
+    display:block;
+    margin-bottom:8px;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+input:focus, select:focus{
+    outline:none;
+    border:1px solid #667eea;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#667eea;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#5a67d8;
+}
+
+.success{
+    margin-top:15px;
+    text-align:center;
+    color:green;
+    font-weight:500;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📦 สั่งผลิตสินค้า</h2>
+
+    <div class="form-group">
+        <label>รหัสออเดอร์</label>
+        <input type="text" id="orderCode" placeholder="เช่น ORD-001">
+    </div>
+
+    <div class="form-group">
+        <label>เลือกสินค้า</label>
+        <select id="product">
+            <option value="">-- เลือกสินค้า --</option>
+            <option value="ที่เปิดขวดไม้บีช">ที่เปิดขวดไม้บีช</option>
+            <option value="ที่เปิดขวดไม้ไผ่">ที่เปิดขวดไม้ไผ่</option>
+            <option value="จานรองแก้ว 1">จานรองแก้ว 1</option>
+            <option value="จานรองแก้ว 2">จานรองแก้ว 2</option>
+            <option value="จานรองแก้ว 3">จานรองแก้ว 3</option>
+            <option value="จานรองแก้ว 4">จานรองแก้ว 4</option>
+            <option value="จานรองแก้ว 5">จานรองแก้ว 5</option>
+            <option value="จานรองแก้ว 6">จานรองแก้ว 6</option>
+			<option value="วัสดุลูกค้านำมาเอง">วัสดุลูกค้านำมาเอง</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>จำนวน</label>
+        <input type="number" id="quantity" placeholder="จำนวนที่ต้องการผลิต">
+    </div>
+
+    <div class="form-group">
+        <label>รหัสสินค้า</label>
+        <input type="text" id="productCode" placeholder="เช่น A154">
+    </div>
+
+    <button onclick="submitForm()">บันทึกคำสั่งผลิต</button>
+
+    <div class="success" id="successMessage"></div>
+</div>
+
+<script>
+
+
+function submitForm(){
+    const orderCode = document.getElementById("orderCode").value;
+    const product = document.getElementById("product").value;
+    const quantity = document.getElementById("quantity").value;
+    const productCode = document.getElementById("productCode").value;
+
+    if(orderCode && product && quantity && productCode){
+
+        fetch("/.netlify/functions/line-webhook", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                orderCode,
+                product,
+                quantity,
+                productCode
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success"){
+                alert("ส่งเข้ากลุ่มไลน์เรียบร้อยแล้ว ✅");
+            } else {
+                alert("เกิดข้อผิดพลาด");
+            }
+        });
+
+    } else {
+        alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+    }
+}
+</script>
+
+</body>
+</html>
